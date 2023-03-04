@@ -10,11 +10,38 @@ export const gettestController = async(
   res: Response,
   next: NextFunction
 ) => {
-  const name = req.body.name
-  const email = req.body.email
+  
   try {
-    const users = await prisma.user.findMany()
-    res.json(users)
+    // const users = await prisma.users.findMany({
+    //   include: {
+    //     posts: {
+    //       include: {
+    //         categories: true
+    //       }
+    //     },
+    //     profile: true
+    //   }
+    // })
+    // res.json(users)
+
+    const rotations = await prisma.weeklyRotation.findMany({
+      include: {
+        initialState: {
+          include: {
+            initialClasses: true,
+            waves: {
+              include: {
+                spawn1: {include:{spawnOneClasses: true}},
+                spawn2: {include:{spawnTwoClasses: true}},
+                spawn3: {include:{spawnThreeClasses: true}},
+              }
+            }
+          }
+        }
+      }
+
+    })
+    res.json(rotations)
   } catch(err) {
   }
 }

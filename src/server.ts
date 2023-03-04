@@ -11,8 +11,8 @@ server.use(bodyParser.json())
 server.use(test)
 
 
- server.listen(3000, () =>
+ server.listen(3001, () =>
   console.log(`
-  🚀 Server ready at: http://localhost:3000
+  🚀 Server ready at: http://localhost:3001
   ⭐️ See sample requests: http://pris.ly/e/ts/rest-express#3-using-the-rest-api`),
   )
