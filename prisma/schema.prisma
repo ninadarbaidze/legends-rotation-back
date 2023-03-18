@@ -56,6 +56,8 @@ model Category {
 model WeeklyRotation {
   id Int @id @default(autoincrement())
   initialState InitialState?
+  waves Waves[]
+
 }
 
 model InitialState {
@@ -67,12 +69,12 @@ model InitialState {
   initialClasses InitialClasses[]
   weeklyRotation WeeklyRotation @relation(fields: [weeklyRotationId], references: [id])
   weeklyRotationId Int @unique
-  waves Waves[]
 
 }
 
 model InitialClasses {
   id Int @id @default(autoincrement())
+  classId Int
   title String
   image String
   color String
@@ -82,7 +84,7 @@ model InitialClasses {
 
 model Waves {
   id Int @id @default(autoincrement())
-  initialState InitialState? @relation(fields: [initialStateId], references: [id])
+  weeklyRotation WeeklyRotation? @relation(fields: [initialStateId], references: [id])
   initialStateId Int
   spawn1 Spawn1?
   spawn2 Spawn2?
@@ -131,25 +133,19 @@ model Action {
 
 model SpawnOneClasses {
   id Int @id @default(autoincrement())
-  title String
-  image String
-  color String
+  classId Int
   spawn1 Spawn1 @relation(fields: [spawn1Id], references: [id])
   spawn1Id Int
 }
 model SpawnTwoClasses {
   id Int @id @default(autoincrement())
-  title String
-  image String
-  color String
+  classId Int
   spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
   spawn2Id Int 
 }
 model SpawnThreeClasses {
   id Int @id @default(autoincrement())
-  title String
-  image String
-  color String
+  classId Int
   spawn3 Spawn3? @relation(fields: [spawn3Id], references: [id])
   spawn3Id Int
 }

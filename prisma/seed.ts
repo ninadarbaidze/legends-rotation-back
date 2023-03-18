@@ -3,39 +3,43 @@ const prisma = new PrismaClient()
 
 async function main() {
   await prisma.weeklyRotation.upsert({
-    where: { id: 1 },
+    where: { id: 2 },
     update: {},
     create: {
       initialState: {
         create: {
           date: '12/12/12',
-          version: '1.1',
-          author: 'Nina',
+          version: '1.2',
+          author: 'Veriko',
           weeklyModifier: 'fire',
           initialClasses: {
             create: [
               {
+                classId: 1,
                 title: 'ronin',
                 image: 'ronin',
                 color: 'red',
               },
               {
+                classId: 2,
                 title: 'huner',
                 image: 'huner',
                 color: 'blue',
               },
               {
+                classId: 3,
                 title: 'ronin',
                 image: 'ronin',
                 color: 'black',
               },
               {
+                classId: 2,
                 title: 'huner',
                 image: 'huner',
                 color: 'yellow',
               },
             ],
-          },
+          }}},
           waves: {
             create: [
               {
@@ -56,24 +60,16 @@ async function main() {
                     spawnOneClasses: {
                       create: [
                         {
-                          title: 'samurai',
-                          image: 'samurai',
-                          color: 'red',
+                          classId: 1
                         },
                         {
-                          title: 'ronin',
-                          image: 'ronin',
-                          color: 'black',
+                          classId: 1
                         },
                         {
-                          title: 'hunter',
-                          image: 'hunter',
-                          color: 'yellow',
+                          classId: 2
                         },
                         {
-                          title: 'assassin',
-                          image: 'assassin',
-                          color: 'blue',
+                          classId: 3
                         },
                       ],
                     },
@@ -90,25 +86,16 @@ async function main() {
                     spawnTwoClasses: {
                       create: [
                         {
-                          title: 'samurai',
-                          image: 'samurai',
-                          color: 'red',
-                          // spawn1Id: 1,
+                          classId: 1
                         },
                         {
-                          title: 'ronin',
-                          image: 'ronin',
-                          color: 'black',
+                          classId: 3
                         },
                         {
-                          title: 'hunter',
-                          image: 'hunter',
-                          color: 'yellow',
+                          classId: 2
                         },
                         {
-                          title: 'assassin',
-                          image: 'assassin',
-                          color: 'blue',
+                          classId: 3
                         },
                       ],
                     },
@@ -118,26 +105,18 @@ async function main() {
                   create: {
                     spawnLocation: 'boat',
                     spawnThreeClasses: {
-                      create: [
+                       create: [
                         {
-                          title: 'samurai',
-                          image: 'samurai',
-                          color: 'red',
+                          classId: 2
                         },
                         {
-                          title: 'ronin',
-                          image: 'ronin',
-                          color: 'black',
+                          classId: 2
                         },
                         {
-                          title: 'hunter',
-                          image: 'hunter',
-                          color: 'yellow',
+                          classId: 2
                         },
                         {
-                          title: 'assassin',
-                          image: 'assassin',
-                          color: 'blue',
+                          classId: 3
                         },
                       ],
                     },
@@ -146,8 +125,6 @@ async function main() {
               },
             ],
           },
-        },
-      },
     },
   })
 
