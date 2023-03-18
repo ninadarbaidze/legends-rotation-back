@@ -27,7 +27,6 @@ export const gettestController = async (
         initialState: {
           include: {
             initialClasses: true,
-           
           },
         },
         waves: {
@@ -39,7 +38,46 @@ export const gettestController = async (
         },
       },
     })
-    res.json(rotations)
+    res.json({
+      ...rotations[0],
+      initialState: rotations[0].initialState,
+      waves: rotations[0].waves.map((wave) => ({
+        ...wave,
+        spawn1: {
+          id: wave!.spawn1!.id,
+          objective: wave.spawn1?.objective,
+          spawnLocation: wave.spawn1?.spawnLocation,
+          selectedOptions: wave.spawn1?.spawnOneClasses.map((spawnClass) => {
+            const selectedInitialClass = rotations[0]!.initialState!.initialClasses.find(
+              (classes) => classes.classId === spawnClass.classId
+            )
+            return { classId: spawnClass.classId, title: selectedInitialClass?.title, color: selectedInitialClass?.color, image: selectedInitialClass?.image }
+          }),
+        },
+        spawn2: {
+          id: wave!.spawn1!.id,
+          objective: wave.spawn1?.objective,
+          spawnLocation: wave.spawn1?.spawnLocation,
+          selectedOptions: wave.spawn2?.spawnTwoClasses.map((spawnClass) => {
+            const selectedInitialClass = rotations[0]!.initialState!.initialClasses.find(
+              (classes) => classes.classId === spawnClass.classId
+            )
+            return { classId: spawnClass.classId, title: selectedInitialClass?.title, color: selectedInitialClass?.color, image: selectedInitialClass?.image }
+          }),
+        },
+        spawn3: {
+          id: wave!.spawn1!.id,
+          objective: wave.spawn1?.objective,
+          spawnLocation: wave.spawn1?.spawnLocation,
+          selectedOptions: wave.spawn3?.spawnThreeClasses.map((spawnClass) => {
+            const selectedInitialClass = rotations[0]!.initialState!.initialClasses.find(
+              (classes) => classes.classId === spawnClass.classId
+            )
+            return { classId: spawnClass.classId, title: selectedInitialClass?.title, color: selectedInitialClass?.color, image: selectedInitialClass?.image }
+          }),
+        },
+      })),
+    })
   } catch (err) {}
 }
 export const postConstroller = async (
@@ -58,41 +96,38 @@ export const postConstroller = async (
             initialClasses: {
               create: initialState.initialClasses,
             },
-           
           },
         },
 
         // I should only get array of classId numbers here, in initial state I'll have full data and in database I will just store
         // id's. when front asks me I will give Id's and front will loop to get full data from initial state.
         waves: {
-          create: waves.map(wavee => ({
-            
-              spawn1: {
-                create: {
-                  spawnLocation: wavee.spawn1.spawnLocation,
-                  spawnOneClasses: {
-                    create: wavee.spawn1.selectedOptions
-                  },
+          create: waves.map((wavee) => ({
+            spawn1: {
+              create: {
+                spawnLocation: wavee.spawn1.spawnLocation,
+                spawnOneClasses: {
+                  create: wavee.spawn1.selectedOptions,
                 },
               },
-              spawn2: {
-                create: {
-                  spawnLocation: wavee.spawn2.spawnLocation,
-                  spawnTwoClasses: {
-                    create: wavee.spawn2.selectedOptions
-                  },
+            },
+            spawn2: {
+              create: {
+                spawnLocation: wavee.spawn2.spawnLocation,
+                spawnTwoClasses: {
+                  create: wavee.spawn2.selectedOptions,
                 },
               },
-              spawn3: {
-                create: {
-                  spawnLocation: wavee.spawn3.spawnLocation,
-                  spawnThreeClasses: {
-                    create: wavee.spawn3.selectedOptions
-                  },
+            },
+            spawn3: {
+              create: {
+                spawnLocation: wavee.spawn3.spawnLocation,
+                spawnThreeClasses: {
+                  create: wavee.spawn3.selectedOptions,
                 },
               },
-            
-          })) 
+            },
+          })),
         },
       },
     })
