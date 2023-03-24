@@ -1,55 +1,4 @@
 -- CreateTable
-CREATE TABLE `Users` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NULL,
-
-    UNIQUE INDEX `Users_email_key`(`email`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Profile` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `bio` VARCHAR(191) NOT NULL,
-    `userId` INTEGER NOT NULL,
-
-    UNIQUE INDEX `Profile_userId_key`(`userId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Post` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `title` VARCHAR(191) NOT NULL,
-    `published` BOOLEAN NOT NULL DEFAULT false,
-    `authorId` INTEGER NOT NULL,
-
-    INDEX `Post_authorId_fkey`(`authorId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `CategoriesOnPosts` (
-    `postId` INTEGER NOT NULL,
-    `categoryId` INTEGER NOT NULL,
-    `assignedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `assignedBy` VARCHAR(191) NOT NULL,
-
-    INDEX `CategoriesOnPosts_categoryId_fkey`(`categoryId`),
-    PRIMARY KEY (`postId`, `categoryId`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Category` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `WeeklyRotation` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
 
@@ -72,6 +21,7 @@ CREATE TABLE `InitialState` (
 -- CreateTable
 CREATE TABLE `InitialClasses` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `classId` INTEGER NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `image` VARCHAR(191) NOT NULL,
     `color` VARCHAR(191) NOT NULL,
@@ -133,29 +83,31 @@ CREATE TABLE `Action` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Classes` (
+CREATE TABLE `SpawnOneClasses` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `title` VARCHAR(191) NOT NULL,
-    `image` VARCHAR(191) NOT NULL,
-    `color` VARCHAR(191) NOT NULL,
+    `classId` INTEGER NOT NULL,
     `spawn1Id` INTEGER NOT NULL,
-    `spawn2Id` INTEGER NOT NULL,
-    `spawn3Id` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
-ALTER TABLE `Profile` ADD CONSTRAINT `Profile_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `Users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE `SpawnTwoClasses` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `classId` INTEGER NOT NULL,
+    `spawn2Id` INTEGER NOT NULL,
 
--- AddForeignKey
-ALTER TABLE `Post` ADD CONSTRAINT `Post_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `Users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
-ALTER TABLE `CategoriesOnPosts` ADD CONSTRAINT `CategoriesOnPosts_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE `SpawnThreeClasses` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `classId` INTEGER NOT NULL,
+    `spawn3Id` INTEGER NOT NULL,
 
--- AddForeignKey
-ALTER TABLE `CategoriesOnPosts` ADD CONSTRAINT `CategoriesOnPosts_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
 ALTER TABLE `InitialState` ADD CONSTRAINT `InitialState_weeklyRotationId_fkey` FOREIGN KEY (`weeklyRotationId`) REFERENCES `WeeklyRotation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -164,7 +116,7 @@ ALTER TABLE `InitialState` ADD CONSTRAINT `InitialState_weeklyRotationId_fkey` F
 ALTER TABLE `InitialClasses` ADD CONSTRAINT `InitialClasses_initialStateId_fkey` FOREIGN KEY (`initialStateId`) REFERENCES `InitialState`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Waves` ADD CONSTRAINT `Waves_initialStateId_fkey` FOREIGN KEY (`initialStateId`) REFERENCES `InitialState`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Waves` ADD CONSTRAINT `Waves_initialStateId_fkey` FOREIGN KEY (`initialStateId`) REFERENCES `WeeklyRotation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Spawn1` ADD CONSTRAINT `Spawn1_waveId_fkey` FOREIGN KEY (`waveId`) REFERENCES `Waves`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -185,10 +137,10 @@ ALTER TABLE `Action` ADD CONSTRAINT `Action_spawn2Id_fkey` FOREIGN KEY (`spawn2I
 ALTER TABLE `Action` ADD CONSTRAINT `Action_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Classes` ADD CONSTRAINT `Classes_spawn1Id_fkey` FOREIGN KEY (`spawn1Id`) REFERENCES `Spawn1`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnOneClasses` ADD CONSTRAINT `SpawnOneClasses_spawn1Id_fkey` FOREIGN KEY (`spawn1Id`) REFERENCES `Spawn1`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Classes` ADD CONSTRAINT `Classes_spawn2Id_fkey` FOREIGN KEY (`spawn2Id`) REFERENCES `Spawn2`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnTwoClasses` ADD CONSTRAINT `SpawnTwoClasses_spawn2Id_fkey` FOREIGN KEY (`spawn2Id`) REFERENCES `Spawn2`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Classes` ADD CONSTRAINT `Classes_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnThreeClasses` ADD CONSTRAINT `SpawnThreeClasses_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

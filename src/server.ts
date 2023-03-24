@@ -1,14 +1,18 @@
 import express from "express";
 import bodyParser from 'body-parser'
-import  test  from './routes/test'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import { rotation } from "routes";
 
 
 
 const server = express()
 
-server.use(bodyParser.json())
+dotenv.config()
 
-server.use(test)
+server.use(bodyParser.json())
+server.use(cors())
+server.use(rotation)
 
 
  server.listen(3001, () =>
