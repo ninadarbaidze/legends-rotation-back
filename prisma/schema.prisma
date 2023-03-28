@@ -42,26 +42,32 @@ model Waves {
   id Int @id @default(autoincrement())
   weeklyRotation WeeklyRotation? @relation(fields: [initialStateId], references: [id])
   initialStateId Int
+  objective Objective?
   spawn1 Spawn1?
   spawn2 Spawn2?
   spawn3 Spawn3?
 }
 
+model Objective {
+  id Int @id @default(autoincrement())
+  name Int
+  waves Waves @relation(fields: [waveId], references: [id])
+  waveId Int @unique
+}
+
 model Spawn1 {
   id Int @id @default(autoincrement())
   spawnLocation String
-  objective String?
   spawnOneClasses SpawnOneClasses[]
-  actions Action[]
+  spawnOneAction SpawnOneAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int  @unique
 }
 model Spawn2 {
   id Int @id @default(autoincrement())
   spawnLocation String
-  objective String? 
   spawnTwoClasses SpawnTwoClasses[]
-  actions Action[]
+  spawnTwoAction SpawnTwoAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int  @unique
 }
@@ -69,28 +75,35 @@ model Spawn2 {
 model Spawn3 {
   id Int @id @default(autoincrement())
   spawnLocation String
-  objective String?
   spawnThreeClasses SpawnThreeClasses[]
-  actions Action[]
+  spawnThreeAction SpawnThreeAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int @unique
 }
 
-model Action {
+model SpawnOneAction {
   id Int @id @default(autoincrement())
-  name String
-  spawn1   Spawn1? @relation(fields: [spawn1Id], references: [id])
+  name Int
+  spawn1  Spawn1? @relation(fields: [spawn1Id], references: [id])
   spawn1Id Int
-  spawn2   Spawn2? @relation(fields: [spawn2Id], references: [id])
-  spawn2Id Int
-  spawn3   Spawn3? @relation(fields: [spawn3Id], references: [id])
-  spawn3Id Int
+}
+model SpawnTwoAction {
+  id Int @id @default(autoincrement())
+  name Int
+  spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
+  spawn2Id Int 
+}
+model SpawnThreeAction {
+  id Int @id @default(autoincrement())
+  name Int
+  spawn3   Spawn3? @relation(fields: [spawn1Id], references: [id])
+  spawn1Id Int
 }
 
 model SpawnOneClasses {
   id Int @id @default(autoincrement())
   classId Int
-  spawn1 Spawn1 @relation(fields: [spawn1Id], references: [id])
+  spawn1 Spawn1? @relation(fields: [spawn1Id], references: [id])
   spawn1Id Int
 }
 model SpawnTwoClasses {

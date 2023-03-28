@@ -3,109 +3,149 @@ import { PrismaClient } from '@prisma/client'
 import { Request, Response } from 'express'
 import { Wave } from 'types/global'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import { create } from 'domain'
 
 const prisma = new PrismaClient()
 
 export const getRotations = async (req: Request, res: Response) => {
-const { id: rotationId }= req.params
+  const { token } = req.params
+  console.log(token)
+  if (!token) {
+    return res.status(404).json({
+      message: "rotation doesn't exists",
+    })
+  } else {
+    const { rotationId } = jwt.verify(
+      token,
+      process.env.JWT_SEC_ROT!
+    ) as JwtPayload
 
-console.log(rotationId)
-  try {
-    const rotation = await prisma.weeklyRotation.findUnique({
-      where: {
-        id: +rotationId
-      },
-      include: {
-        initialState: {
-          include: {
-            initialClasses: true,
+    try {
+      const rotation = await prisma.weeklyRotation.findUnique({
+        where: {
+          id: +rotationId,
+        },
+        include: {
+          initialState: {
+            include: {
+              initialClasses: true,
+            },
+          },
+          waves: {
+            include: {
+              spawn1: {
+                include: { spawnOneClasses: true, spawnOneAction: true },
+              },
+              spawn2: {
+                include: { spawnTwoClasses: true, spawnTwoAction: true },
+              },
+              spawn3: {
+                include: { spawnThreeClasses: true, spawnThreeAction: true },
+              },
+              objective: true
+            },
           },
         },
-        waves: {
-          include: {
-            spawn1: { include: { spawnOneClasses: true } },
-            spawn2: { include: { spawnTwoClasses: true } },
-            spawn3: { include: { spawnThreeClasses: true } },
-          },
-        },
-      },
-    })
+      })
 
-    res.json({
-      ...rotation,
-      initialState: rotation!.initialState,
-      waves: rotation!.waves.map((wave) => ({
-        ...wave,
-        spawn1: {
-          id: wave!.spawn1!.id,
-          objective: wave.spawn1?.objective,
-          spawnLocation: wave.spawn1?.spawnLocation,
-          selectedOptions: wave.spawn1?.spawnOneClasses.map((spawnClass) => {
-            const selectedInitialClass =
-              rotation!.initialState!.initialClasses.find(
-                (classes) => classes.classId === spawnClass.classId
-              )
-            return {
-              classId: spawnClass.classId,
-              title: selectedInitialClass?.title,
-              color: selectedInitialClass?.color,
-              image: selectedInitialClass?.image,
-            }
-          }),
-        },
-        spawn2: {
-          id: wave!.spawn1!.id,
-          objective: wave.spawn1?.objective,
-          spawnLocation: wave.spawn1?.spawnLocation,
-          selectedOptions: wave.spawn2?.spawnTwoClasses.map((spawnClass) => {
-            const selectedInitialClass =
-              rotation!.initialState!.initialClasses.find(
-                (classes) => classes.classId === spawnClass.classId
-              )
-            return {
-              classId: spawnClass.classId,
-              title: selectedInitialClass?.title,
-              color: selectedInitialClass?.color,
-              image: selectedInitialClass?.image,
-            }
-          }),
-        },
-        spawn3: {
-          id: wave!.spawn1!.id,
-          objective: wave.spawn1?.objective,
-          spawnLocation: wave.spawn1?.spawnLocation,
-          selectedOptions: wave.spawn3?.spawnThreeClasses.map((spawnClass) => {
-            const selectedInitialClass =
-              rotation!.initialState!.initialClasses.find(
-                (classes) => classes.classId === spawnClass.classId
-              )
-            return {
-              classId: spawnClass.classId,
-              title: selectedInitialClass?.title,
-              color: selectedInitialClass?.color,
-              image: selectedInitialClass?.image,
-            }
-          }),
-        },
-      })),
-    })
-  } catch (err: any) {
-    err.statusCode = 500
-    throw err
+      res.json({
+        ...rotation,
+        initialState: rotation!.initialState,
+        waves: rotation!.waves.map((wave) => ({
+          ...wave,
+          spawn1: {
+            id: wave!.spawn1!.id,
+            objective: wave.spawn1?.objective,
+            spawnLocation: wave.spawn1?.spawnLocation,
+            selectedOptions: wave.spawn1?.spawnOneClasses.map((spawnClass) => {
+              const selectedInitialClass =
+                rotation!.initialState?.initialClasses.find(
+                  (classes) => classes.classId === spawnClass.classId
+                )
+              return {
+                classId: spawnClass.classId,
+                title: selectedInitialClass?.title,
+                color: selectedInitialClass?.color,
+                image: selectedInitialClass?.image,
+              }
+            }),
+            actions: wave.spawn1?.spawnOneAction.map((item) => ({
+              value: item.name,
+            })),
+          },
+          spawn2: {
+            id: wave!.spawn1!.id,
+            objective: wave.spawn1?.objective,
+            spawnLocation: wave.spawn1?.spawnLocation,
+            selectedOptions: wave.spawn2?.spawnTwoClasses.map((spawnClass) => {
+              const selectedInitialClass =
+                rotation!.initialState!.initialClasses.find(
+                  (classes) => classes.classId === spawnClass.classId
+                )
+              return {
+                classId: spawnClass.classId,
+                title: selectedInitialClass?.title,
+                color: selectedInitialClass?.color,
+                image: selectedInitialClass?.image,
+              }
+            }),
+            actions: wave.spawn2?.spawnTwoAction.map((item) => ({
+              value: item.name,
+            })),
+          },
+          spawn3: {
+            id: wave!.spawn1!.id,
+            objective: wave.spawn1?.objective,
+            spawnLocation: wave.spawn1?.spawnLocation,
+            selectedOptions: wave.spawn3?.spawnThreeClasses.map(
+              (spawnClass) => {
+                const selectedInitialClass =
+                  rotation!.initialState!.initialClasses.find(
+                    (classes) => classes.classId === spawnClass.classId
+                  )
+                return {
+                  classId: spawnClass.classId,
+                  title: selectedInitialClass?.title,
+                  color: selectedInitialClass?.color,
+                  image: selectedInitialClass?.image,
+                }
+              }
+            ),
+            actions: wave.spawn3?.spawnThreeAction.map((item) => ({
+              value: item.name,
+            })),
+          },
+        })),
+      })
+    } catch (err: any) {
+      err.statusCode = 500
+      throw err
+    }
   }
 }
 
 export const postRotations = async (req: Request, res: Response) => {
   const { initialState, waves } = req.body
+  // console.log(initialState, waves)
+  const { rotationId } = req.params
 
   try {
+    const initialClasses = initialState.initialClasses.map((item) => ({
+      classId: item.classId,
+      title: item.title,
+      image: item.image,
+      color: item.color,
+    }))
     const response = await prisma.weeklyRotation.create({
       data: {
         initialState: {
           create: {
-            ...initialState,
+            author: initialState.author,
+            date: initialState.date,
+            version: initialState.version,
+            weeklyModifier: initialState.weeklyModifier,
             initialClasses: {
-              create: initialState.initialClasses,
+              create: initialClasses,
             },
           },
         },
@@ -115,7 +155,14 @@ export const postRotations = async (req: Request, res: Response) => {
               create: {
                 spawnLocation: wave.spawn1.spawnLocation,
                 spawnOneClasses: {
-                  create: wave.spawn1.selectedOptions,
+                  create: wave.spawn1.selectedOptions.map((item) => ({
+                    classId: item.classId,
+                  })),
+                },
+                spawnOneAction: {
+                  create: wave.spawn1.actions.map((item) => ({
+                    name: item.value,
+                  })),
                 },
               },
             },
@@ -123,7 +170,14 @@ export const postRotations = async (req: Request, res: Response) => {
               create: {
                 spawnLocation: wave.spawn2.spawnLocation,
                 spawnTwoClasses: {
-                  create: wave.spawn2.selectedOptions,
+                  create: wave.spawn2.selectedOptions.map((item) => ({
+                    classId: item.classId,
+                  })),
+                },
+                spawnTwoAction: {
+                  create: wave.spawn2.actions.map((item) => ({
+                    name: item.value ?? item.name,
+                  })),
                 },
               },
             },
@@ -131,9 +185,19 @@ export const postRotations = async (req: Request, res: Response) => {
               create: {
                 spawnLocation: wave.spawn3.spawnLocation,
                 spawnThreeClasses: {
-                  create: wave.spawn3.selectedOptions,
+                  create: wave.spawn3.selectedOptions.map((item) => ({
+                    classId: item.classId,
+                  })),
+                },
+                spawnThreeAction: {
+                  create: wave.spawn2.actions.map((item) => ({
+                    name: item.value ?? item.name,
+                  })),
                 },
               },
+            },
+            objective: {
+              create:  {name: wave.objective?.value ?? 0} ,
             },
           })),
         },
@@ -147,7 +211,7 @@ export const postRotations = async (req: Request, res: Response) => {
     res.status(201).json({
       message: 'added successfully',
       token: token,
-      rotationId: response.id
+      rotationId: response.id,
     })
   } catch (err: any) {
     err.statusCode = 500
