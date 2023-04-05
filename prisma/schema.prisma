@@ -13,8 +13,9 @@ model WeeklyRotation {
   id Int @id @default(autoincrement())
   initialState InitialState?
   waves Waves[]
-
-}
+  weeklyMap WeeklyMap? @relation(fields: [weeklyMapId], references: [id])
+  weeklyMapId Int?
+  }
 
 model InitialState {
   id Int @id @default(autoincrement())
@@ -22,9 +23,11 @@ model InitialState {
   date String
   version String
   weeklyModifier String
+  isPublic Boolean @default(false)
   initialClasses InitialClasses[]
   weeklyRotation WeeklyRotation @relation(fields: [weeklyRotationId], references: [id])
   weeklyRotationId Int @unique
+  @@index([weeklyRotationId])
 
 }
 
@@ -36,6 +39,8 @@ model InitialClasses {
   color String
   initialState InitialState @relation(fields: [initialStateId], references: [id])
   initialStateId Int
+
+  @@index([initialStateId])
 }
 
 model Waves {
@@ -46,6 +51,8 @@ model Waves {
   spawn1 Spawn1?
   spawn2 Spawn2?
   spawn3 Spawn3?
+
+  @@index([initialStateId])
 }
 
 model Objective {
@@ -53,6 +60,8 @@ model Objective {
   name Int
   waves Waves @relation(fields: [waveId], references: [id])
   waveId Int @unique
+
+  @@index([waveId])
 }
 
 model Spawn1 {
@@ -62,6 +71,7 @@ model Spawn1 {
   spawnOneAction SpawnOneAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int  @unique
+  @@index([waveId])
 }
 model Spawn2 {
   id Int @id @default(autoincrement())
@@ -70,6 +80,8 @@ model Spawn2 {
   spawnTwoAction SpawnTwoAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int  @unique
+  @@index([waveId])
+
 }
 
 model Spawn3 {
@@ -79,6 +91,7 @@ model Spawn3 {
   spawnThreeAction SpawnThreeAction[]
   wave Waves @relation(fields: [waveId], references: [id])
   waveId Int @unique
+  @@index([waveId])
 }
 
 model SpawnOneAction {
@@ -86,18 +99,24 @@ model SpawnOneAction {
   name Int
   spawn1  Spawn1? @relation(fields: [spawn1Id], references: [id])
   spawn1Id Int
+  @@index([spawn1Id])
+
 }
 model SpawnTwoAction {
   id Int @id @default(autoincrement())
   name Int
   spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
   spawn2Id Int 
+  @@index([spawn2Id])
+
 }
 model SpawnThreeAction {
   id Int @id @default(autoincrement())
   name Int
-  spawn3   Spawn3? @relation(fields: [spawn1Id], references: [id])
-  spawn1Id Int
+  spawn3   Spawn3? @relation(fields: [spawn3Id], references: [id])
+  spawn3Id Int
+  @@index([spawn3Id])
+
 }
 
 model SpawnOneClasses {
@@ -105,16 +124,39 @@ model SpawnOneClasses {
   classId Int
   spawn1 Spawn1? @relation(fields: [spawn1Id], references: [id])
   spawn1Id Int
+  @@index([spawn1Id])
+
 }
 model SpawnTwoClasses {
   id Int @id @default(autoincrement())
   classId Int
   spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
   spawn2Id Int 
+  @@index([spawn2Id])
+
 }
 model SpawnThreeClasses {
   id Int @id @default(autoincrement())
   classId Int
   spawn3 Spawn3? @relation(fields: [spawn3Id], references: [id])
   spawn3Id Int
+  @@index([spawn3Id])
+
+}
+
+
+model WeeklyMap {
+  id Int @id @default(autoincrement())
+  title String 
+  mapId Int @unique
+  locations Locations[]
+  weeklyRotation WeeklyRotation[]
+}
+
+model Locations {
+  id Int @id @default(autoincrement())
+  location String
+  weeklyMap WeeklyMap @relation(fields: [weeklyMapId], references: [id])
+  weeklyMapId Int
+
 }

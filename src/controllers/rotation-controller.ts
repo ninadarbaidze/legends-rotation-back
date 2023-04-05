@@ -1,25 +1,17 @@
-import { NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { Request, Response } from 'express'
 import { Wave } from 'types/global'
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import { create } from 'domain'
+import { calculateCurrentVersion } from 'utils/rotationHelpers'
 
 const prisma = new PrismaClient()
 
 export const getRotations = async (req: Request, res: Response) => {
-  const { token } = req.params
-  console.log(token)
-  if (!token) {
+  const { rotationId } = req.params
+  if (!rotationId) {
     return res.status(404).json({
       message: "rotation doesn't exists",
     })
   } else {
-    const { rotationId } = jwt.verify(
-      token,
-      process.env.JWT_SEC_ROT!
-    ) as JwtPayload
-
     try {
       const rotation = await prisma.weeklyRotation.findUnique({
         where: {
@@ -118,18 +110,66 @@ export const getRotations = async (req: Request, res: Response) => {
         })),
       })
     } catch (err: any) {
-      err.statusCode = 500
-      throw err
+      return res.status(500).json({
+        message: err.message,
+      })
+     
     }
   }
 }
 
+export const getAllRotations = async (req: Request, res: Response) => {
+ 
+
+    try {
+      const rotations = await prisma.weeklyRotation.findMany({
+        include: {
+          initialState: {
+            include: {
+              initialClasses: true,
+            },
+          },
+          waves: {
+            include: {
+              spawn1: {
+                include: { spawnOneClasses: true, spawnOneAction: true },
+              },
+              spawn2: {
+                include: { spawnTwoClasses: true, spawnTwoAction: true },
+              },
+              spawn3: {
+                include: { spawnThreeClasses: true, spawnThreeAction: true },
+              },
+              objective: true
+            },
+          },
+        },
+      })
+
+      res.json(
+        rotations
+      )
+    } catch (err: any) {
+      return res.status(500).json({
+        message: err.message,
+      })
+    }
+  }
+
+
 export const postRotations = async (req: Request, res: Response) => {
-  const { initialState, waves } = req.body
-  // console.log(initialState, waves)
-  const { rotationId } = req.params
+  const { initialState, waves, spawnMap } = req.body
+  const { id } = req.params
+
 
   try {
+    let existedRotation
+    if(id) {
+      existedRotation = await prisma.weeklyRotation.findUnique( {where: {
+        id: +id,
+      }, include: {initialState: true}})
+    }
+    console.log(spawnMap)
     const initialClasses = initialState.initialClasses.map((item) => ({
       classId: item.classId,
       title: item.title,
@@ -142,11 +182,12 @@ export const postRotations = async (req: Request, res: Response) => {
           create: {
             author: initialState.author,
             date: initialState.date,
-            version: initialState.version,
+            version: existedRotation?.initialState?.author === initialState.author ? calculateCurrentVersion(initialState.version)  : initialState.version,
             weeklyModifier: initialState.weeklyModifier,
             initialClasses: {
               create: initialClasses,
             },
+            isPublic: initialState.isPublic === 'yes'
           },
         },
         waves: {
@@ -176,7 +217,7 @@ export const postRotations = async (req: Request, res: Response) => {
                 },
                 spawnTwoAction: {
                   create: wave.spawn2.actions.map((item) => ({
-                    name: item.value ?? item.name,
+                    name: item.value,
                   })),
                 },
               },
@@ -190,31 +231,69 @@ export const postRotations = async (req: Request, res: Response) => {
                   })),
                 },
                 spawnThreeAction: {
-                  create: wave.spawn2.actions.map((item) => ({
-                    name: item.value ?? item.name,
+                  create: wave.spawn3.actions.map((item) => ({
+                    name:  item.value,
                   })),
                 },
               },
             },
             objective: {
-              create:  {name: wave.objective?.value ?? 0} ,
+              create:  {name: wave.objective?.value ? wave.objective?.value : wave.objective?.name ? wave.objective?.name :  0} ,
             },
           })),
         },
+        weeklyMap: {
+          connect: {
+            id: spawnMap.value
+          }
+        }
       },
     })
-    const token = jwt.sign(
-      { rotationId: response.id },
-      process.env.JWT_SEC_ROT!
-    )
 
     res.status(201).json({
       message: 'added successfully',
-      token: token,
       rotationId: response.id,
     })
   } catch (err: any) {
-    err.statusCode = 500
-    throw err
+    return res.status(500).json({
+      message: err.message,
+    })
   }
+}
+
+
+export const  getWeeklyMapTitles = async (_: Request, res: Response) => {
+  try {
+    const weeklyMaps = await prisma.weeklyMap.findMany()
+    res.json(weeklyMaps)
+    
+  } catch(err: any){
+    return res.status(500).json({
+      message: err.message,
+    })
+  }
+}
+
+export const  getWeeklyMapLocations = async (req: Request, res: Response) => {
+  const {weeklyMapId} = req.params
+  console.log(weeklyMapId)
+  try {
+    const locationsBasedOnMaps = await prisma.weeklyMap.findUnique({
+      where: {
+        id: +weeklyMapId
+      },
+      include: {
+        locations: true
+      }
+    })
+
+    const formattedData = locationsBasedOnMaps?.locations.map(location => location.location )
+
+    res.json(formattedData)
+  } catch(err: any){
+    return res.status(500).json({
+      message: err.message,
+    })
+  }
+
 }

@@ -1,246 +1,96 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
+const weeklyMaps = [
+  {
+    mapId: 1,
+    title: 'The Shores of Vengeance',
+    locations: [
+      {location: 'Boat'},
+      {location: 'Beach'},
+      {location: 'Forest R (cliff)'},
+      {location: 'Forest M (cliff)'},
+      {location: 'Hut (cliff)'},
+    ]
+  },
+  {
+    mapId: 2,
+    title: 'The Defense of Aoi Village',
+    locations: [
+      {location: 'beach (stable)'},
+      {location: 'Forest (farm)'},
+      {location: 'Field (farm)'},
+      {location: 'Villa'},
+    ]
+  },
+  {
+    mapId: 3,
+    title: 'The Shadows of War',
+    locations: [
+      {location: 'Stable'},
+      {location: 'Barracks L'},
+      {location: 'Barracks M'},
+      {location: 'Barracks R'},
+      {location: 'Dojo D'},
+      {location: 'Dojo S'},
+    ]
+  },
+  {
+    mapId: 4,
+    title: 'Blood in the Snow',
+    locations: [
+      {location: 'Camp'},
+      {location: 'Mine'},
+      {location: 'Outpost'},
+    ]
+  },
+  {
+    mapId: 5,
+    title: 'Twilight and Ashes',
+    locations: [
+      {location: 'Obelisk'},
+      {location: 'Lighthouse'},
+      {location: 'Boulder (lighthouse)'},
+      {location: 'Cliff (lighthouse)'},
+      {location: 'Boulder (ledge)'},
+      {location: 'Cliff (ledge)'},
+    ]
+  },
+  {
+    mapId: 6,
+    title: 'Blood and Steel',
+    locations: [
+      {location: 'Cliff'},
+      {location: 'Field (cliff)'},
+      {location: 'Field (Island)'},
+      {location: 'Riverside (Island)'},
+      {location: 'Forest (camp)'},
+      {location: 'Riverside (camp)'},
+    ]
+  }
+]
 
 async function main() {
-  await prisma.weeklyRotation.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      initialState: {
-        create: {
-          date: '12/12/12',
-          version: '1.2',
-          author: 'Veriko',
-          weeklyModifier: 'fire',
-          initialClasses: {
-            create: [
-              {
-                classId: 1,
-                title: 'ronin',
-                image: 'ronin',
-                color: 'red',
-              },
-              {
-                classId: 2,
-                title: 'huner',
-                image: 'huner',
-                color: 'blue',
-              },
-              {
-                classId: 3,
-                title: 'ronin',
-                image: 'ronin',
-                color: 'black',
-              },
-              {
-                classId: 2,
-                title: 'huner',
-                image: 'huner',
-                color: 'yellow',
-              },
-            ],
-          }}},
-          waves: {
-            create: [
-              {
-                // initialStateId: {
-                //   connect: {
-                //     id: 1
-                //   }
-                // },
-                // initialStateId: 1,
-                spawn1: {
-                  create: {
-                    spawnLocation: 'beach',
-                    // actions: {
-                    //   create: {
-                    //     name: 'ultimate',
-                    //   },
-                    // },
-                    spawnOneClasses: {
-                      create: [
-                        {
-                          classId: 1
-                        },
-                        {
-                          classId: 1
-                        },
-                        {
-                          classId: 2
-                        },
-                        {
-                          classId: 3
-                        },
-                      ],
-                    },
-                  },
-                },
-                spawn2: {
-                  create: {
-                    spawnLocation: 'beach',
-                    // actions: {
-                    //   create: {
-                    //     name: 'ultimate',
-                    //   },
-                    // },
-                    spawnTwoClasses: {
-                      create: [
-                        {
-                          classId: 1
-                        },
-                        {
-                          classId: 3
-                        },
-                        {
-                          classId: 2
-                        },
-                        {
-                          classId: 3
-                        },
-                      ],
-                    },
-                  },
-                },
-                spawn3: {
-                  create: {
-                    spawnLocation: 'boat',
-                    spawnThreeClasses: {
-                       create: [
-                        {
-                          classId: 2
-                        },
-                        {
-                          classId: 2
-                        },
-                        {
-                          classId: 2
-                        },
-                        {
-                          classId: 3
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-    },
-  })
+  for (const map of weeklyMaps) {
+    const existingMap = await prisma.weeklyMap.findUnique({
+      where: {
+        mapId: map.mapId,
+      },
+    })
 
-  // await prisma.initialState.update({
-  //   where: { id: 1 },
-  //   data: {
-  //     date: '12/12/12',
-  //     version: '1.1',
-  //     author: 'Ninako',
-  //     weeklyModifier: 'fire',
-  //     weeklyRotationId: 1,
-  //   },
-  //   // update: {}
-  // })
+    if (!existingMap) {
+      await prisma.weeklyMap.create({
+        data: { title: map.title, mapId: map.mapId, locations: {
+          create: map.locations
+        } },
+      })
+    } 
+  }
+
+  await prisma.$disconnect()
 }
-// async function main() {
-//   await prisma.users.upsert({
-//     update: {},
-//     create: {
-//       email: 'nina@nina.ge',
-//       name: 'nina',
-//       posts: {
-//         create: {
-//           title: 'Check out Prisma with Next.js',
-//           published: true,
-//           categories: {
-//             create: {
-//               assignedBy: 'Bob',
-//               assignedAt: new Date(),
-//               category: {
-//                 create: { name: 'lalala' },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     },
-//     where: {
-//       email: 'nina@nina.ge',
-//     },
-//   })
-//   await prisma.users.upsert({
-//     update: {},
-//     create: {
-//       email: 'beso@nina.ge',
-//       name: 'beso',
-//     },
-//     where: {
-//       email: 'beso@nina.ge',
-//     },
-//   })
-//   await prisma.post.upsert({
-//     create: {
-//       authorId: 1,
-//       title: 'How to become a butterfly',
-//       categories: {
-//         create: {
-//           assignedBy: 'beso',
-//           assignedAt: new Date(),
-//           category: {
-//             create: { name: 'lalala' },
-//           },
-//         },
-//       },
-//     },
-//     where: {
-//       id: 2,
-//     },
-//     update: {},
-//   })
 
-//   await prisma.profile.upsert({
-//     create: {
-//       bio: 'dimpitauri dampitauri',
-//       userId: 1,
-//     },
-//     where: {
-//       id: 1,
-//     },
-//     update: {},
-//   })
-
-//   await prisma.profile.upsert({
-//     create: {
-//       bio: 'gochoba',
-//       userId: 2,
-//     },
-//     where: {
-//       id: 3,
-//     },
-//     update: {},
-//   })
-
-//   await prisma.users.upsert({
-//     create: {
-//       name: 'gelika',
-//       email: 'merhaba',
-//       profile: {
-//         create: {
-//           bio: 'wadi ra',
-//         },
-//       },
-//     },
-//     where: {
-//       id: 2,
-//     },
-//     update: {},
-//   })
-
-// }
 main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e)
-    await prisma.$disconnect()
     process.exit(1)
   })

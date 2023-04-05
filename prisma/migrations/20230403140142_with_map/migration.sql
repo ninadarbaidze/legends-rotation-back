@@ -12,9 +12,11 @@ CREATE TABLE `InitialState` (
     `date` VARCHAR(191) NOT NULL,
     `version` VARCHAR(191) NOT NULL,
     `weeklyModifier` VARCHAR(191) NOT NULL,
+    `isPublic` BOOLEAN NOT NULL DEFAULT false,
     `weeklyRotationId` INTEGER NOT NULL,
 
     UNIQUE INDEX `InitialState_weeklyRotationId_key`(`weeklyRotationId`),
+    INDEX `InitialState_weeklyRotationId_idx`(`weeklyRotationId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -27,6 +29,7 @@ CREATE TABLE `InitialClasses` (
     `color` VARCHAR(191) NOT NULL,
     `initialStateId` INTEGER NOT NULL,
 
+    INDEX `InitialClasses_initialStateId_idx`(`initialStateId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -35,6 +38,18 @@ CREATE TABLE `Waves` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `initialStateId` INTEGER NOT NULL,
 
+    INDEX `Waves_initialStateId_idx`(`initialStateId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Objective` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` INTEGER NOT NULL,
+    `waveId` INTEGER NOT NULL,
+
+    UNIQUE INDEX `Objective_waveId_key`(`waveId`),
+    INDEX `Objective_waveId_idx`(`waveId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -42,10 +57,10 @@ CREATE TABLE `Waves` (
 CREATE TABLE `Spawn1` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `spawnLocation` VARCHAR(191) NOT NULL,
-    `objective` VARCHAR(191) NULL,
     `waveId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Spawn1_waveId_key`(`waveId`),
+    INDEX `Spawn1_waveId_idx`(`waveId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -53,10 +68,10 @@ CREATE TABLE `Spawn1` (
 CREATE TABLE `Spawn2` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `spawnLocation` VARCHAR(191) NOT NULL,
-    `objective` VARCHAR(191) NULL,
     `waveId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Spawn2_waveId_key`(`waveId`),
+    INDEX `Spawn2_waveId_idx`(`waveId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -64,21 +79,40 @@ CREATE TABLE `Spawn2` (
 CREATE TABLE `Spawn3` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `spawnLocation` VARCHAR(191) NOT NULL,
-    `objective` VARCHAR(191) NULL,
     `waveId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Spawn3_waveId_key`(`waveId`),
+    INDEX `Spawn3_waveId_idx`(`waveId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Action` (
+CREATE TABLE `SpawnOneAction` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NOT NULL,
+    `name` INTEGER NOT NULL,
     `spawn1Id` INTEGER NOT NULL,
+
+    INDEX `SpawnOneAction_spawn1Id_idx`(`spawn1Id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SpawnTwoAction` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` INTEGER NOT NULL,
     `spawn2Id` INTEGER NOT NULL,
+
+    INDEX `SpawnTwoAction_spawn2Id_idx`(`spawn2Id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SpawnThreeAction` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` INTEGER NOT NULL,
     `spawn3Id` INTEGER NOT NULL,
 
+    INDEX `SpawnThreeAction_spawn3Id_idx`(`spawn3Id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -88,6 +122,7 @@ CREATE TABLE `SpawnOneClasses` (
     `classId` INTEGER NOT NULL,
     `spawn1Id` INTEGER NOT NULL,
 
+    INDEX `SpawnOneClasses_spawn1Id_idx`(`spawn1Id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -97,6 +132,7 @@ CREATE TABLE `SpawnTwoClasses` (
     `classId` INTEGER NOT NULL,
     `spawn2Id` INTEGER NOT NULL,
 
+    INDEX `SpawnTwoClasses_spawn2Id_idx`(`spawn2Id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -106,6 +142,26 @@ CREATE TABLE `SpawnThreeClasses` (
     `classId` INTEGER NOT NULL,
     `spawn3Id` INTEGER NOT NULL,
 
+    INDEX `SpawnThreeClasses_spawn3Id_idx`(`spawn3Id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `WeeklyMap` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `WeeklyMap_title_key`(`title`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Locations` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `location` VARCHAR(191) NOT NULL,
+    `weeklyMapId` INTEGER NOT NULL,
+
+    INDEX `Locations_weeklyMapId_idx`(`weeklyMapId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -119,6 +175,9 @@ ALTER TABLE `InitialClasses` ADD CONSTRAINT `InitialClasses_initialStateId_fkey`
 ALTER TABLE `Waves` ADD CONSTRAINT `Waves_initialStateId_fkey` FOREIGN KEY (`initialStateId`) REFERENCES `WeeklyRotation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `Objective` ADD CONSTRAINT `Objective_waveId_fkey` FOREIGN KEY (`waveId`) REFERENCES `Waves`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Spawn1` ADD CONSTRAINT `Spawn1_waveId_fkey` FOREIGN KEY (`waveId`) REFERENCES `Waves`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -128,13 +187,13 @@ ALTER TABLE `Spawn2` ADD CONSTRAINT `Spawn2_waveId_fkey` FOREIGN KEY (`waveId`) 
 ALTER TABLE `Spawn3` ADD CONSTRAINT `Spawn3_waveId_fkey` FOREIGN KEY (`waveId`) REFERENCES `Waves`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Action` ADD CONSTRAINT `Action_spawn1Id_fkey` FOREIGN KEY (`spawn1Id`) REFERENCES `Spawn1`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnOneAction` ADD CONSTRAINT `SpawnOneAction_spawn1Id_fkey` FOREIGN KEY (`spawn1Id`) REFERENCES `Spawn1`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Action` ADD CONSTRAINT `Action_spawn2Id_fkey` FOREIGN KEY (`spawn2Id`) REFERENCES `Spawn2`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnTwoAction` ADD CONSTRAINT `SpawnTwoAction_spawn2Id_fkey` FOREIGN KEY (`spawn2Id`) REFERENCES `Spawn2`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Action` ADD CONSTRAINT `Action_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnThreeAction` ADD CONSTRAINT `SpawnThreeAction_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `SpawnOneClasses` ADD CONSTRAINT `SpawnOneClasses_spawn1Id_fkey` FOREIGN KEY (`spawn1Id`) REFERENCES `Spawn1`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -144,3 +203,6 @@ ALTER TABLE `SpawnTwoClasses` ADD CONSTRAINT `SpawnTwoClasses_spawn2Id_fkey` FOR
 
 -- AddForeignKey
 ALTER TABLE `SpawnThreeClasses` ADD CONSTRAINT `SpawnThreeClasses_spawn3Id_fkey` FOREIGN KEY (`spawn3Id`) REFERENCES `Spawn3`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Locations` ADD CONSTRAINT `Locations_weeklyMapId_fkey` FOREIGN KEY (`weeklyMapId`) REFERENCES `WeeklyMap`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
