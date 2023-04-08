@@ -20,22 +20,27 @@ export type Wave = {
   spawn1: {
     spawnLocation: string
     selectedOptions: ClassInitialState[]
-    actions: string[]
+    actions: Actions[]
     extra: string[]
   }
   spawn2: {
     spawnLocation: string
     selectedOptions: ClassInitialState[]
-    actions: string[]
+    actions: Actions[]
     extra: string[]
     objective: string
   }
   spawn3: {
     spawnLocation: string
     selectedOptions: ClassInitialState[]
-    actions: string[]
+    actions: Actions[]
     extra: string[]
     objective: string
   }
   objective: { name: number, value: number }
+}
+
+export type Actions = {
+  name?: string
+  value?: number
 }

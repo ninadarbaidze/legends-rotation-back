@@ -8,13 +8,28 @@ datasource db {
 }
 
 
+model WeeklyMap {
+  id Int @id @default(autoincrement())
+  title String  
+  mapId Int
+  locations Locations[]
+  weeklyRotations WeeklyRotation[]
+  }
 
+model Locations {
+  id Int @id @default(autoincrement())
+  location String
+  weeklyMap WeeklyMap @relation(fields: [mapId], references: [id])
+  mapId Int
+
+}
 model WeeklyRotation {
   id Int @id @default(autoincrement())
   initialState InitialState?
   waves Waves[]
-  weeklyMap WeeklyMap? @relation(fields: [weeklyMapId], references: [id])
-  weeklyMapId Int?
+  weeklyMap WeeklyMap @relation(fields: [weeklyMapId], references: [id])
+  weeklyMapId Int
+  @@unique([id])
   }
 
 model InitialState {
@@ -145,18 +160,3 @@ model SpawnThreeClasses {
 }
 
 
-model WeeklyMap {
-  id Int @id @default(autoincrement())
-  title String 
-  mapId Int @unique
-  locations Locations[]
-  weeklyRotation WeeklyRotation[]
-}
-
-model Locations {
-  id Int @id @default(autoincrement())
-  location String
-  weeklyMap WeeklyMap @relation(fields: [weeklyMapId], references: [id])
-  weeklyMapId Int
-
-}

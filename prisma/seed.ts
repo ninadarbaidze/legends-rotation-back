@@ -71,19 +71,19 @@ const weeklyMaps = [
 
 async function main() {
   for (const map of weeklyMaps) {
-    const existingMap = await prisma.weeklyMap.findUnique({
-      where: {
-        mapId: map.mapId,
-      },
-    })
+    // const existingMap = await prisma.weeklyMap.findUnique({
+    //   where: {
+    //     title: map.title,
+    //   },
+    // })
 
-    if (!existingMap) {
+    // if (!existingMap) {
       await prisma.weeklyMap.create({
         data: { title: map.title, mapId: map.mapId, locations: {
           create: map.locations
         } },
       })
-    } 
+    // } 
   }
 
   await prisma.$disconnect()
