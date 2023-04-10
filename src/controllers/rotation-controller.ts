@@ -40,6 +40,8 @@ export const getRotations = async (req: Request, res: Response) => {
           weeklyMap: true
         },
       })
+      
+      
 
       res.json({
         ...rotation,
@@ -128,6 +130,11 @@ export const getAllRotations = async (_: Request, res: Response) => {
             },
           },
         },
+        orderBy: {
+          initialState: {
+            date: 'desc' 
+          }
+        }
       })
 
       res.json(
@@ -143,8 +150,7 @@ export const getAllRotations = async (_: Request, res: Response) => {
 
 export const postRotations = async (req: Request, res: Response) => {
   const { initialState, waves, weeklyMap } = req.body
-  const { id } = req.params
-
+  const { id } = req.query
 
   try {
     let existedRotation
@@ -159,7 +165,8 @@ export const postRotations = async (req: Request, res: Response) => {
       }
     });
 
-    console.log('sds', weeklyMap)
+    console.log(existedRotation?.initialState?.author,initialState.author )
+
     
     let response
     if(existingWeeklyMap) {
@@ -175,8 +182,8 @@ export const postRotations = async (req: Request, res: Response) => {
               initialState: {
                 create: {
                   author: initialState.author,
-                  date: initialState.date ?? new Date(),
-                  version: existedRotation?.initialState?.author === initialState.author ? calculateCurrentVersion(initialState.version)  : initialState.version,
+                  date: initialState.date === '' ? new Date():initialState.date,
+                  version: existedRotation?.initialState?.author === initialState.author && initialState?.version === '' ? calculateCurrentVersion(existedRotation?.initialState?.version as string)  : initialState.version,
                   weeklyModifier: initialState.weeklyModifier,
                   initialClasses: {
                     create: initialClasses,
@@ -269,7 +276,6 @@ export const  getWeeklyMapTitles = async (_: Request, res: Response) => {
 
 export const  getWeeklyMapLocations = async (req: Request, res: Response) => {
   const {weeklyMapId} = req.params
-  console.log(weeklyMapId)
   try {
     const locationsBasedOnMaps = await prisma.weeklyMap.findUnique({
       where: {
