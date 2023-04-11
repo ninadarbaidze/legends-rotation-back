@@ -63,6 +63,7 @@ model Waves {
   weeklyRotation WeeklyRotation? @relation(fields: [initialStateId], references: [id])
   initialStateId Int
   objective Objective?
+  comment String? 
   spawn1 Spawn1?
   spawn2 Spawn2?
   spawn3 Spawn3?

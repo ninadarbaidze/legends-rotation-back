@@ -165,7 +165,6 @@ export const postRotations = async (req: Request, res: Response) => {
       }
     });
 
-    console.log(existedRotation?.initialState?.author,initialState.author )
 
     
     let response
@@ -241,6 +240,8 @@ export const postRotations = async (req: Request, res: Response) => {
                   objective: {
                     create:  {name: wave.objective?.value ? wave.objective?.value : wave.objective?.name ? wave.objective?.name :  0} ,
                   },
+                  comment:  wave.comment
+                  
                 })),
               },
              

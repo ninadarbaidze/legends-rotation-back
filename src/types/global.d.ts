@@ -38,6 +38,7 @@ export type Wave = {
     objective: string
   }
   objective: { name: number, value: number }
+  comment: string
 }
 
 export type Actions = {
