@@ -61,7 +61,7 @@ model InitialClasses {
 model Waves {
   id Int @id @default(autoincrement())
   weeklyRotation WeeklyRotation? @relation(fields: [initialStateId], references: [id])
-  initialStateId Int
+  initialStateId Int 
   objective Objective?
   comment String? 
   spawn1 Spawn1?
