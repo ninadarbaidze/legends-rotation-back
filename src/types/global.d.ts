@@ -1,5 +1,10 @@
+import { InitialState, WeeklyRotation } from "@prisma/client"
+
+const prisma = new PrismaClient()
+
+
 export type ClassInitialState = {
-  classId: number | null
+  classId: number 
   title: string
   image: string
   color: string
@@ -9,7 +14,7 @@ export type FormClasses = {
   initialState: {
     author: string
     initialClasses: ClassInitialState[]
-    date: string
+    date: string | Date
     version: string
     weeklyModifier: string
   }
@@ -45,3 +50,6 @@ export type Actions = {
   name?: string
   value?: number
 }
+
+
+

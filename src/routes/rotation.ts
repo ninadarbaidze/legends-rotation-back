@@ -3,8 +3,8 @@ import express from "express"
 
 const router = express.Router()
 
-router.post('/rotations/:id?', postRotations )
-router.get('/rotations/:rotationId', getRotations)
+router.post('/rotations/:token?', postRotations )
+router.get('/rotations/:token', getRotations)
 router.get('/all-rotations', getAllRotations)
 router.get('/weekly-maps', getWeeklyMapTitles)
 router.get('/locations/:weeklyMapId', getWeeklyMapLocations)
