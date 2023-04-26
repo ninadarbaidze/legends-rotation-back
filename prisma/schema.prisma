@@ -10,34 +10,34 @@ datasource db {
 
 model WeeklyMap {
   id Int @id @default(autoincrement())
-  title String  
-  mapId Int
+  title String 
+  mapId Int 
   locations Locations[]
   weeklyRotations WeeklyRotation[]
   }
 
 model Locations {
   id Int @id @default(autoincrement())
-  location String
+  location String @db.TinyText
   weeklyMap WeeklyMap @relation(fields: [mapId], references: [id])
-  mapId Int
+  mapId Int 
 
 }
 model WeeklyRotation {
   id Int @id @default(autoincrement())
   initialState InitialState?
-  waves Waves[]
-  weeklyMap WeeklyMap @relation(fields: [weeklyMapId], references: [id])
+  waves Wave[]
+  weeklyMap WeeklyMap @relation(fields: [weeklyMapId], references: [id], onUpdate: Cascade)
   weeklyMapId Int
   @@unique([id])
   }
 
 model InitialState {
   id Int @id @default(autoincrement())
-  author String
+  author String @db.TinyText
   date String
   version String
-  weeklyModifier String
+  weeklyModifier String @db.TinyText
   isPublic Boolean @default(false)
   initialClasses InitialClasses[]
   weeklyRotation WeeklyRotation @relation(fields: [weeklyRotationId], references: [id])
@@ -48,116 +48,73 @@ model InitialState {
 
 model InitialClasses {
   id Int @id @default(autoincrement())
-  classId Int
-  title String
+  classId Int @db.TinyInt
+  title String @db.TinyText
   image String
-  color String
+  color String @db.TinyText
   initialState InitialState @relation(fields: [initialStateId], references: [id])
   initialStateId Int
 
   @@index([initialStateId])
 }
 
-model Waves {
+model Wave {
   id Int @id @default(autoincrement())
-  weeklyRotation WeeklyRotation? @relation(fields: [initialStateId], references: [id])
-  initialStateId Int 
-  objective Objective?
+  weeklyRotation WeeklyRotation @relation(fields: [weeklyRotationId], references: [id])
+  weeklyRotationId Int 
+  objective Int? @db.TinyInt
   comment String? 
-  spawn1 Spawn1?
-  spawn2 Spawn2?
-  spawn3 Spawn3?
-
-  @@index([initialStateId])
+  spawns WavesOnSpawns[]
 }
 
-model Objective {
+model Spawn {
   id Int @id @default(autoincrement())
-  name Int
-  waves Waves @relation(fields: [waveId], references: [id])
-  waveId Int @unique
-
-  @@index([waveId])
+  spawnLocation String @db.TinyText
+  classes SpawnsOnClasses[]
+  actions SpawnsOnAction[]
+  waves WavesOnSpawns[]
 }
 
-model Spawn1 {
+model WavesOnSpawns {
+  wave Wave @relation(fields: [waveId], references: [id])
+  waveId Int
+  spawn Spawn @relation(fields: [spawnId], references: [id])
+  spawnId Int
+  @@id([waveId, spawnId])
+}
+
+
+model Action {
   id Int @id @default(autoincrement())
-  spawnLocation String
-  spawnOneClasses SpawnOneClasses[]
-  spawnOneAction SpawnOneAction[]
-  wave Waves @relation(fields: [waveId], references: [id])
-  waveId Int  @unique
-  @@index([waveId])
+  name Int 
+  spawns SpawnsOnAction[]
 }
-model Spawn2 {
-  id Int @id @default(autoincrement())
-  spawnLocation String
-  spawnTwoClasses SpawnTwoClasses[]
-  spawnTwoAction SpawnTwoAction[]
-  wave Waves @relation(fields: [waveId], references: [id])
-  waveId Int  @unique
-  @@index([waveId])
+
+model SpawnsOnAction {
+  spawn Spawn @relation(fields: [spawnId], references: [id])
+  spawnId Int
+  action Action @relation(fields: [actionId], references: [id])
+  actionId Int
+
+  @@id([spawnId, actionId])
 
 }
 
-model Spawn3 {
-  id Int @id @default(autoincrement())
-  spawnLocation String
-  spawnThreeClasses SpawnThreeClasses[]
-  spawnThreeAction SpawnThreeAction[]
-  wave Waves @relation(fields: [waveId], references: [id])
-  waveId Int @unique
-  @@index([waveId])
-}
 
-model SpawnOneAction {
-  id Int @id @default(autoincrement())
-  name Int
-  spawn1  Spawn1? @relation(fields: [spawn1Id], references: [id])
-  spawn1Id Int
-  @@index([spawn1Id])
-
-}
-model SpawnTwoAction {
-  id Int @id @default(autoincrement())
-  name Int
-  spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
-  spawn2Id Int 
-  @@index([spawn2Id])
-
-}
-model SpawnThreeAction {
-  id Int @id @default(autoincrement())
-  name Int
-  spawn3   Spawn3? @relation(fields: [spawn3Id], references: [id])
-  spawn3Id Int
-  @@index([spawn3Id])
-
-}
-
-model SpawnOneClasses {
+model Classes {
   id Int @id @default(autoincrement())
   classId Int
-  spawn1 Spawn1? @relation(fields: [spawn1Id], references: [id])
-  spawn1Id Int
-  @@index([spawn1Id])
-
+  spawns SpawnsOnClasses[]
 }
-model SpawnTwoClasses {
-  id Int @id @default(autoincrement())
+
+model SpawnsOnClasses {
+  spawn Spawn @relation(fields: [spawnId], references: [id])
+  spawnId Int
+  class Classes @relation(fields: [classId], references: [id])
   classId Int
-  spawn2 Spawn2 @relation(fields: [spawn2Id], references: [id])
-  spawn2Id Int 
-  @@index([spawn2Id])
+  @@id([spawnId, classId])
 
 }
-model SpawnThreeClasses {
-  id Int @id @default(autoincrement())
-  classId Int
-  spawn3 Spawn3? @relation(fields: [spawn3Id], references: [id])
-  spawn3Id Int
-  @@index([spawn3Id])
 
-}
 
 
