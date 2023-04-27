@@ -12,11 +12,18 @@ const prisma = new PrismaClient()
 
 export const getRotations = async (req: Request, res: Response) => {
   const { token } = req.params
-  const { id } = jwt.verify(
-    token,
-    process.env.JWT_SEC_ROT as string
-  ) as JwtPayload
-  if (!id) {
+
+  let rotationId
+  if (!isNaN(token as any)) {
+    rotationId = +token
+  } else {
+    var { id } = jwt.verify(
+      token,
+      process.env.JWT_SEC_ROT as string
+    ) as JwtPayload
+  }
+
+  if (!id && !rotationId) {
     return res.status(404).json({
       message: "rotation doesn't exists",
     })
@@ -24,7 +31,7 @@ export const getRotations = async (req: Request, res: Response) => {
     try {
       const rotation = await prisma.weeklyRotation.findUnique({
         where: {
-          id: +id,
+          id: +id || rotationId,
         },
         include: {
           initialState: {
@@ -58,7 +65,13 @@ export const getRotations = async (req: Request, res: Response) => {
         },
       })
 
-      res.json(formatResponseDataForFrontEnd(rotation))
+      if (!rotation?.initialState?.isPublic && !isNaN(token as any)) {
+        res.status(403).json({
+          message: 'you do not have access to this rotation',
+        })
+      } else {
+        res.json(formatResponseDataForFrontEnd(rotation))
+      }
     } catch (err: any) {
       return res.status(500).json({
         message: err.message,
@@ -96,7 +109,6 @@ export const postRotations = async (req: Request, res: Response) => {
   const { initialState, waves, weeklyMap } = req.body
   const { token } = req.params
   let existedRotation
-
   if (token) {
     const { id } = jwt.verify(
       token,
@@ -110,6 +122,7 @@ export const postRotations = async (req: Request, res: Response) => {
       include: { initialState: true },
     })
   }
+  let response
 
   try {
     const existingWeeklyMap = await prisma.weeklyMap.findUnique({
@@ -118,7 +131,6 @@ export const postRotations = async (req: Request, res: Response) => {
       },
     })
 
-    let response
     if (existingWeeklyMap) {
       response = await createRotationHandler(
         initialState,
@@ -129,7 +141,11 @@ export const postRotations = async (req: Request, res: Response) => {
         weeklyMap
       )
     }
-
+  } catch (err: any) {
+    return res.status(500).json({
+      message: err.message,
+    })
+  } finally {
     const token = jwt.sign(
       { id: response?.id },
       process.env.JWT_SEC_ROT as string
@@ -138,10 +154,6 @@ export const postRotations = async (req: Request, res: Response) => {
     res.status(201).json({
       message: 'added successfully',
       rotationId: token,
-    })
-  } catch (err: any) {
-    return res.status(500).json({
-      message: err.message,
     })
   }
 }

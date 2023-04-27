@@ -30,7 +30,7 @@ export const formatResponseDataForFrontEnd = (rotation: any) => {
     initialState: rotation?.initialState,
     waves: rotation!.waves.map((wave: any) => ({
       spawn1: {
-        id: wave!.spawns[0]!.spawn.id,
+        id: wave!.spawns[0]!.spawn.spawnId,
         spawnLocation: wave!.spawns[0]!.spawn.spawnLocation,
         selectedOptions: wave!.spawns[0]!.spawn.classes.map(
           (spawnClass: { class: { classId: any } }) => {
@@ -54,7 +54,7 @@ export const formatResponseDataForFrontEnd = (rotation: any) => {
         ),
       },
       spawn2: {
-        id: wave!.spawns[1]!.spawn.id,
+        id: wave!.spawns[1]!.spawn.spawnId,
         spawnLocation: wave!.spawns[1]!.spawn.spawnLocation,
         selectedOptions: wave!.spawns[1]!.spawn.classes.map(
           (spawnClass: { class: { classId: any } }) => {
@@ -78,7 +78,7 @@ export const formatResponseDataForFrontEnd = (rotation: any) => {
         ),
       },
       spawn3: {
-        id: wave!.spawns[2]!.spawn.id,
+        id: wave!.spawns[2]!.spawn.spawnId,
         spawnLocation: wave!.spawns[2]!.spawn.spawnLocation,
         selectedOptions: wave!.spawns[2]!.spawn.classes.map(
           (spawnClass: { class: { classId: any } }) => {
@@ -159,9 +159,9 @@ export const createRotationHandler = async (
               {
                 spawn: {
                   create: {
-                    spawnLocation: wave.spawn1.spawnLocation,
+                    spawnLocation: wave.spawn3.spawnLocation,
                     classes: {
-                      create: wave.spawn1.selectedOptions.map(
+                      create: wave.spawn3.selectedOptions.map(
                         (item: { classId: any }) => ({
                           class: {
                             create: {
@@ -172,7 +172,7 @@ export const createRotationHandler = async (
                       ),
                     },
                     actions: {
-                      create: wave.spawn1.actions.map((item) => ({
+                      create: wave.spawn3.actions.map((item) => ({
                         action: { create: { name: item?.value } },
                       })),
                     },
@@ -205,9 +205,9 @@ export const createRotationHandler = async (
               {
                 spawn: {
                   create: {
-                    spawnLocation: wave.spawn3.spawnLocation,
+                    spawnLocation: wave.spawn1.spawnLocation,
                     classes: {
-                      create: wave.spawn3.selectedOptions.map(
+                      create: wave.spawn1.selectedOptions.map(
                         (item: { classId: any }) => ({
                           class: {
                             create: {
@@ -218,7 +218,7 @@ export const createRotationHandler = async (
                       ),
                     },
                     actions: {
-                      create: wave.spawn3.actions.map((item) => ({
+                      create: wave.spawn1.actions.map((item) => ({
                         action: { create: { name: item?.value } },
                       })),
                     },
