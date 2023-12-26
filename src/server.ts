@@ -15,8 +15,8 @@ server.use(cors())
 server.use(rotation)
 
 
- server.listen(3001, () =>
+ server.listen(3002, () =>
   console.log(`
-  🚀 Server ready at: http://localhost:3001
+  🚀 Server ready at: http://localhost:3002
   ⭐️ See sample requests: http://pris.ly/e/ts/rest-express#3-using-the-rest-api`),
   )
