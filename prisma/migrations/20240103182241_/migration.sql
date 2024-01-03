@@ -10,7 +10,7 @@ CREATE TABLE `WeeklyMap` (
 -- CreateTable
 CREATE TABLE `Locations` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `location` VARCHAR(191) NOT NULL,
+    `location` TINYTEXT NOT NULL,
     `mapId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -28,10 +28,10 @@ CREATE TABLE `WeeklyRotation` (
 -- CreateTable
 CREATE TABLE `InitialState` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `author` VARCHAR(191) NOT NULL,
+    `author` TINYTEXT NOT NULL,
     `date` VARCHAR(191) NOT NULL,
     `version` VARCHAR(191) NOT NULL,
-    `weeklyModifier` VARCHAR(191) NOT NULL,
+    `weeklyModifier` TINYTEXT NOT NULL,
     `isPublic` BOOLEAN NOT NULL DEFAULT false,
     `weeklyRotationId` INTEGER NOT NULL,
 
@@ -43,10 +43,10 @@ CREATE TABLE `InitialState` (
 -- CreateTable
 CREATE TABLE `InitialClasses` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `classId` INTEGER NOT NULL,
-    `title` VARCHAR(191) NOT NULL,
+    `classId` TINYINT NOT NULL,
+    `title` TINYTEXT NOT NULL,
     `image` VARCHAR(191) NOT NULL,
-    `color` VARCHAR(191) NOT NULL,
+    `color` TINYTEXT NOT NULL,
     `initialStateId` INTEGER NOT NULL,
 
     INDEX `InitialClasses_initialStateId_idx`(`initialStateId`),
@@ -57,7 +57,7 @@ CREATE TABLE `InitialClasses` (
 CREATE TABLE `Wave` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `weeklyRotationId` INTEGER NOT NULL,
-    `objective` INTEGER NOT NULL,
+    `objective` TINYINT NULL,
     `comment` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
@@ -66,7 +66,7 @@ CREATE TABLE `Wave` (
 -- CreateTable
 CREATE TABLE `Spawn` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `spawnLocation` VARCHAR(191) NOT NULL,
+    `spawnLocation` TINYTEXT NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -82,7 +82,7 @@ CREATE TABLE `WavesOnSpawns` (
 -- CreateTable
 CREATE TABLE `Action` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NOT NULL,
+    `name` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -106,9 +106,9 @@ CREATE TABLE `Classes` (
 -- CreateTable
 CREATE TABLE `SpawnsOnClasses` (
     `spawnId` INTEGER NOT NULL,
-    `ClassesId` INTEGER NOT NULL,
+    `classId` INTEGER NOT NULL,
 
-    PRIMARY KEY (`spawnId`, `ClassesId`)
+    PRIMARY KEY (`spawnId`, `classId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
@@ -142,4 +142,4 @@ ALTER TABLE `SpawnsOnAction` ADD CONSTRAINT `SpawnsOnAction_actionId_fkey` FOREI
 ALTER TABLE `SpawnsOnClasses` ADD CONSTRAINT `SpawnsOnClasses_spawnId_fkey` FOREIGN KEY (`spawnId`) REFERENCES `Spawn`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `SpawnsOnClasses` ADD CONSTRAINT `SpawnsOnClasses_ClassesId_fkey` FOREIGN KEY (`ClassesId`) REFERENCES `Classes`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `SpawnsOnClasses` ADD CONSTRAINT `SpawnsOnClasses_classId_fkey` FOREIGN KEY (`classId`) REFERENCES `Classes`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
